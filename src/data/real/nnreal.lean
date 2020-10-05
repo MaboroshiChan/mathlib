@@ -38,6 +38,7 @@ iff.intro nnreal.eq (congr_arg coe)
 lemma ne_iff {x y : ℝ≥0} : (x : ℝ) ≠ (y : ℝ) ↔ x ≠ y :=
 not_iff_not_of_iff $ nnreal.eq_iff
 
+/-- Reinterpret a real number `r` as a non-negative real number. Returns `0` if `r < 0`. -/
 protected def of_real (r : ℝ) : ℝ≥0 := ⟨max r 0, le_max_right _ _⟩
 
 lemma coe_of_real (r : ℝ) (hr : 0 ≤ r) : (nnreal.of_real r : ℝ) = r :=
@@ -209,7 +210,7 @@ instance : canonically_ordered_comm_semiring ℝ≥0 :=
   .. nnreal.comm_group_with_zero }
 
 instance : densely_ordered ℝ≥0 :=
-⟨assume a b (h : (a : ℝ) < b), let ⟨c, hac, hcb⟩ := dense h in
+⟨assume a b (h : (a : ℝ) < b), let ⟨c, hac, hcb⟩ := exists_between h in
   ⟨⟨c, le_trans a.property $ le_of_lt $ hac⟩, hac, hcb⟩⟩
 
 instance : no_top_order ℝ≥0 :=
