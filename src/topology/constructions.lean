@@ -64,7 +64,7 @@ instance Pi.topological_space {β : α → Type v} [t₂ : Πa, topological_spac
 instance ulift.topological_space [t : topological_space α] : topological_space (ulift.{v u} α) :=
 t.induced ulift.down
 
-lemma quotient_dense_of_dense [setoid α] [topological_space α] {s : set α} (H : dense s) :
+lemma dense.quotient [setoid α] [topological_space α] {s : set α} (H : dense s) :
   dense (quotient.mk '' s) :=
 (surjective_quotient_mk α).dense_range.dense_image continuous_coinduced_rng H
 

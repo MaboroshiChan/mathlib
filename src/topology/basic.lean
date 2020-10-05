@@ -1109,7 +1109,8 @@ lemma dense_range.dense_image {f : α → β} (hf' : dense_range f) (hf : contin
   dense (f '' s)  :=
 (hf'.mono $ hf.range_subset_closure_image_dense hs).of_closure
 
-lemma dense_range.comp (hg : dense_range g) (hf : dense_range f) (cg : continuous g) :
+lemma dense_range.comp {g : β → γ} {f : κ → β} (hg : dense_range g) (hf : dense_range f)
+  (cg : continuous g) :
   dense_range (g ∘ f) :=
 by { rw [dense_range, range_comp], exact hg.dense_image cg hf }
 
