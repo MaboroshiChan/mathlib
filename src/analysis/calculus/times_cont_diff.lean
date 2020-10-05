@@ -2328,8 +2328,8 @@ open normed_ring continuous_linear_map ring
 /-- In a complete normed algebra, the operation of inversion is `C^n`, for all `n`, at each
 invertible element.  The proof is by induction, bootstrapping using an identity expressing the
 derivative of inversion as a bilinear map of inversion itself. -/
-lemma times_cont_diff_at_ring_inverse [complete_space R] {n : with_top ℕ} (x : units R) :
-  times_cont_diff_at 𝕜 n ring.inverse (x : R) :=
+lemma times_cont_diff_at_inv₀ [complete_space R] {n : with_top ℕ} (x : units R) :
+  times_cont_diff_at 𝕜 n inv₀ (x : R) :=
 begin
   induction n using with_top.nat_induction with n IH Itop,
   { intros m hm,
@@ -2348,8 +2348,8 @@ begin
     { refine ⟨{y : R | is_unit y}, x.nhds, _⟩,
       intros y hy,
       cases mem_set_of_eq.mp hy with y' hy',
-      rw [← hy', units.inverse_eq],
-      exact @has_fderiv_at_ring_inverse 𝕜 _ _ _ _ _ y' },
+      rw [← hy', units.inv₀_eq],
+      exact @has_fderiv_at_inv₀ 𝕜 _ _ _ _ _ y' },
     { exact (lmul_left_right_is_bounded_bilinear 𝕜 R).times_cont_diff.neg.comp_times_cont_diff_at
         (x : R) (IH.prod IH) } },
   { exact times_cont_diff_at_top.mpr Itop }
@@ -2359,7 +2359,7 @@ variables (𝕜) {𝕜' : Type*} [normed_field 𝕜'] [normed_algebra 𝕜 𝕜'
 
 lemma times_cont_diff_at_inv {x : 𝕜'} (hx : x ≠ 0) {n} :
   times_cont_diff_at 𝕜 n has_inv.inv x :=
-by simpa only [inverse_eq_has_inv] using times_cont_diff_at_ring_inverse 𝕜 (units.mk0 x hx)
+by simpa only [inv₀_eq_has_inv] using times_cont_diff_at_inv₀ 𝕜 (units.mk0 x hx)
 
 variable {𝕜}
 
@@ -2392,15 +2392,15 @@ inversion is `C^n`, for all `n`. -/
 lemma times_cont_diff_at_map_inverse [complete_space E] {n : with_top ℕ} (e : E ≃L[𝕜] F) :
   times_cont_diff_at 𝕜 n inverse (e : E →L[𝕜] F) :=
 begin
-  -- first, we use the lemma `to_ring_inverse` to rewrite in terms of `ring.inverse` in the ring
+  -- first, we use the lemma `to_inv₀` to rewrite in terms of `inv₀` in the ring
   -- `E →L[𝕜] E`
   let O₁ : (E →L[𝕜] E) → (F →L[𝕜] E) := λ f, f.comp (e.symm : (F →L[𝕜] E)),
   let O₂ : (E →L[𝕜] F) → (E →L[𝕜] E) := λ f, (e.symm : (F →L[𝕜] E)).comp f,
-  have : continuous_linear_map.inverse = O₁ ∘ ring.inverse ∘ O₂,
+  have : continuous_linear_map.inverse = O₁ ∘ inv₀ ∘ O₂,
   { funext f,
-    rw to_ring_inverse e},
+    rw to_inv₀ e},
   rw this,
-  -- `O₁` and `O₂` are `times_cont_diff`, so we reduce to proving that `ring.inverse` is `times_cont_diff`
+  -- `O₁` and `O₂` are `times_cont_diff`, so we reduce to proving that `inv₀` is `times_cont_diff`
   have h₁ : times_cont_diff 𝕜 n O₁,
   { exact is_bounded_bilinear_map_comp.times_cont_diff.comp (times_cont_diff_const.prod times_cont_diff_id) },
   have h₂ : times_cont_diff 𝕜 n O₂,
@@ -2412,7 +2412,7 @@ begin
   { convert @times_cont_diff_at_const _ _ _ _ _ _ _ _ _ _ (0 :  E →L[𝕜] E),
     ext,
     simp },
-  { convert times_cont_diff_at_ring_inverse 𝕜 1; try { apply_instance },
+  { convert times_cont_diff_at_inv₀ 𝕜 1; try { apply_instance },
     simp [O₂, one_def] },
 end
 

@@ -1078,20 +1078,20 @@ variables [ring R]
 variables [add_comm_group M] [topological_add_group M] [module R M]
 variables [add_comm_group M₂] [module R M₂]
 
-@[simp] lemma ring_inverse_equiv (e : M ≃L[R] M) :
-  ring.inverse ↑e = inverse (e : M →L[R] M) :=
+@[simp] lemma inv₀_equiv (e : M ≃L[R] M) :
+  inv₀ ↑e = inverse (e : M →L[R] M) :=
 begin
   suffices :
-    ring.inverse ((((continuous_linear_equiv.units_equiv _ _).symm e) : M →L[R] M)) = inverse ↑e,
+    inv₀ ((((continuous_linear_equiv.units_equiv _ _).symm e) : M →L[R] M)) = inverse ↑e,
   { convert this },
   simp,
   refl,
 end
 
-/-- The function `continuous_linear_equiv.inverse` can be written in terms of `ring.inverse` for the
+/-- The function `continuous_linear_equiv.inverse` can be written in terms of `inv₀` for the
 ring of self-maps of the domain. -/
-lemma to_ring_inverse (e : M ≃L[R] M₂) (f : M →L[R] M₂) :
-  inverse f = (ring.inverse ((e.symm : (M₂ →L[R] M)).comp f)).comp e.symm :=
+lemma to_inv₀ (e : M ≃L[R] M₂) (f : M →L[R] M₂) :
+  inverse f = (inv₀ ((e.symm : (M₂ →L[R] M)).comp f)).comp e.symm :=
 begin
   by_cases h₁ : ∃ (e' : M ≃L[R] M₂), ↑e' = f,
   { obtain ⟨e', he'⟩ := h₁,
@@ -1108,10 +1108,10 @@ begin
     simp [hF] }
 end
 
-lemma ring_inverse_eq_map_inverse : ring.inverse = @inverse R M M _ _ _ _ _ _ _ :=
+lemma inv₀_eq_map_inverse : inv₀ = @inverse R M M _ _ _ _ _ _ _ :=
 begin
   ext,
-  simp [to_ring_inverse (continuous_linear_equiv.refl R M)],
+  simp [to_inv₀ (continuous_linear_equiv.refl R M)],
 end
 
 end

@@ -21,10 +21,10 @@ would use the spectral radius.
 The first main result is `is_open`:  the group of units of a complete normed ring is an open subset
 of the ring.
 
-The function `inverse` (defined in `algebra.ring`), for a ring `R`, sends `a : R` to `a⁻¹` if `a` is
-a unit and 0 if not.  The other major results of this file (notably `inverse_add`,
-`inverse_add_norm` and `inverse_add_norm_diff_nth_order`) cover the asymptotic properties of
-`inverse (x + t)` as `t → 0`.
+The function `inv₀` (defined in `algebra.monoid_with_zero`), for a monoid with zero `M₀`, sends `a :
+M₀` to `a⁻¹` if `a` is a unit and 0 if not. The other major results of this file (notably
+`inv₀_add`, `inv₀_add_norm` and `inv₀_add_norm_diff_nth_order`) cover the asymptotic properties of
+`inv₀ (x + t)` as `t → 0`.
 
 -/
 
@@ -95,15 +95,15 @@ namespace normed_ring
 open_locale classical big_operators
 open asymptotics filter metric finset ring
 
-lemma inverse_one_sub (t : R) (h : ∥t∥ < 1) : inverse (1 - t) = ↑(units.one_sub t h)⁻¹ :=
+lemma inv₀_one_sub (t : R) (h : ∥t∥ < 1) : inv₀ (1 - t) = ↑(units.one_sub t h)⁻¹ :=
 begin
-  rw ← (units.one_sub t h).inverse_eq,
+  rw ← (units.one_sub t h).inv₀_eq,
   refl,
 end
 
-/-- The formula `inverse (x + t) = inverse (1 + x⁻¹ * t) * x⁻¹` holds for `t` sufficiently small. -/
-lemma inverse_add (x : units R) :
-  ∀ᶠ t in (𝓝 0), inverse ((x : R) + t) = inverse (1 + ↑x⁻¹ * t) * ↑x⁻¹ :=
+/-- The formula `inv₀ (x + t) = inv₀ (1 + x⁻¹ * t) * x⁻¹` holds for `t` sufficiently small. -/
+lemma inv₀_add (x : units R) :
+  ∀ᶠ t in (𝓝 0), inv₀ ((x : R) + t) = inv₀ (1 + ↑x⁻¹ * t) * ↑x⁻¹ :=
 begin
   rw [eventually_iff, mem_nhds_iff],
   casesI subsingleton_or_nontrivial R,
@@ -119,21 +119,21 @@ begin
       rw norm_neg,
       refine lt_of_lt_of_le (mul_lt_mul_of_pos_left ht x⁻¹.norm_pos) _,
       cancel_denoms },
-    have hright := inverse_one_sub (-↑x⁻¹ * t) ht',
-    have hleft := (x.add t ht).inverse_eq,
+    have hright := inv₀_one_sub (-↑x⁻¹ * t) ht',
+    have hleft := (x.add t ht).inv₀_eq,
     simp only [neg_mul_eq_neg_mul_symm, sub_neg_eq_add] at hright,
     simp only [units.add_coe] at hleft,
     simp [hleft, hright, units.add] }
 end
 
-lemma inverse_one_sub_nth_order (n : ℕ) :
-  ∀ᶠ t in (𝓝 0), inverse ((1:R) - t) = (∑ i in range n, t ^ i) + (t ^ n) * inverse (1 - t) :=
+lemma inv₀_one_sub_nth_order (n : ℕ) :
+  ∀ᶠ t in (𝓝 0), inv₀ ((1:R) - t) = (∑ i in range n, t ^ i) + (t ^ n) * inv₀ (1 - t) :=
 begin
   simp only [eventually_iff, mem_nhds_iff],
   use [1, by norm_num],
   intros t ht,
   simp only [mem_ball, dist_zero_right] at ht,
-  simp only [inverse_one_sub t ht, set.mem_set_of_eq],
+  simp only [inv₀_one_sub t ht, set.mem_set_of_eq],
   have h : 1 = ((range n).sum (λ i, t ^ i)) * (units.one_sub t ht) + t ^ n,
   { simp only [units.one_sub_coe],
     rw [← geom_series, geom_sum_mul_neg],
@@ -148,17 +148,17 @@ begin
 end
 
 /-- The formula
-`inverse (x + t) = (∑ i in range n, (- x⁻¹ * t) ^ i) * x⁻¹ + (- x⁻¹ * t) ^ n * inverse (x + t)`
+`inv₀ (x + t) = (∑ i in range n, (- x⁻¹ * t) ^ i) * x⁻¹ + (- x⁻¹ * t) ^ n * inv₀ (x + t)`
 holds for `t` sufficiently small. -/
-lemma inverse_add_nth_order (x : units R) (n : ℕ) :
-  ∀ᶠ t in (𝓝 0), inverse ((x : R) + t)
-  = (∑ i in range n, (- ↑x⁻¹ * t) ^ i) * ↑x⁻¹ + (- ↑x⁻¹ * t) ^ n * inverse (x + t) :=
+lemma inv₀_add_nth_order (x : units R) (n : ℕ) :
+  ∀ᶠ t in (𝓝 0), inv₀ ((x : R) + t)
+  = (∑ i in range n, (- ↑x⁻¹ * t) ^ i) * ↑x⁻¹ + (- ↑x⁻¹ * t) ^ n * inv₀ (x + t) :=
 begin
-  refine (inverse_add x).mp _,
+  refine (inv₀_add x).mp _,
   have hzero : tendsto (λ (t : R), - ↑x⁻¹ * t) (𝓝 0) (𝓝 0),
   { convert ((mul_left_continuous (- (↑x⁻¹ : R))).tendsto 0).comp tendsto_id,
     simp },
-  refine (hzero.eventually (inverse_one_sub_nth_order n)).mp (eventually_of_forall _),
+  refine (hzero.eventually (inv₀_one_sub_nth_order n)).mp (eventually_of_forall _),
   simp only [neg_mul_eq_neg_mul_symm, sub_neg_eq_add],
   intros t h1 h2,
   have h := congr_arg (λ (a : R), a * ↑x⁻¹) h1,
@@ -168,7 +168,7 @@ begin
   simp [h2.symm]
 end
 
-lemma inverse_one_sub_norm : is_O (λ t, inverse ((1:R) - t)) (λ t, (1:ℝ)) (𝓝 (0:R)) :=
+lemma inv₀_one_sub_norm : is_O (λ t, inv₀ ((1:R) - t)) (λ t, (1:ℝ)) (𝓝 (0:R)) :=
 begin
   simp only [is_O, is_O_with, eventually_iff, mem_nhds_iff],
   refine ⟨∥(1:R)∥ + 1, (2:ℝ)⁻¹, by norm_num, _⟩,
@@ -177,7 +177,7 @@ begin
   have ht' : ∥t∥ < 1,
   { have : (2:ℝ)⁻¹ < 1 := by cancel_denoms,
     linarith },
-  simp only [inverse_one_sub t ht', norm_one, mul_one, set.mem_set_of_eq],
+  simp only [inv₀_one_sub t ht', norm_one, mul_one, set.mem_set_of_eq],
   change ∥(∑' (n : ℕ), t ^ n)∥ ≤ _,
   have := normed_ring.tsum_geometric_of_norm_lt_1 t ht',
   have : (1 - ∥t∥)⁻¹ ≤ 2,
@@ -188,44 +188,44 @@ begin
   linarith
 end
 
-/-- The function `λ t, inverse (x + t)` is O(1) as `t → 0`. -/
-lemma inverse_add_norm (x : units R) : is_O (λ t, inverse (↑x + t)) (λ t, (1:ℝ)) (𝓝 (0:R)) :=
+/-- The function `λ t, inv₀ (x + t)` is O(1) as `t → 0`. -/
+lemma inv₀_add_norm (x : units R) : is_O (λ t, inv₀ (↑x + t)) (λ t, (1:ℝ)) (𝓝 (0:R)) :=
 begin
   simp only [is_O_iff, norm_one, mul_one],
   cases subsingleton_or_nontrivial R; resetI,
   { refine ⟨1, eventually_of_forall (λ t, _)⟩,
-    have : ∥inverse (↑x + t)∥ = 0 := by simp,
+    have : ∥inv₀ (↑x + t)∥ = 0 := by simp,
     linarith },
-  { cases is_O_iff.mp (@inverse_one_sub_norm R _ _) with C hC,
+  { cases is_O_iff.mp (@inv₀_one_sub_norm R _ _) with C hC,
     use C * ∥((x⁻¹:units R):R)∥,
     have hzero : tendsto (λ t, - (↑x⁻¹ : R) * t) (𝓝 0) (𝓝 0),
     { convert ((mul_left_continuous (-↑x⁻¹ : R)).tendsto 0).comp tendsto_id,
       simp },
-    refine (inverse_add x).mp ((hzero.eventually hC).mp (eventually_of_forall _)),
+    refine (inv₀_add x).mp ((hzero.eventually hC).mp (eventually_of_forall _)),
     intros t bound iden,
     rw iden,
     simp at bound,
-    have hmul := norm_mul_le (inverse (1 + ↑x⁻¹ * t)) ↑x⁻¹,
+    have hmul := norm_mul_le (inv₀ (1 + ↑x⁻¹ * t)) ↑x⁻¹,
     nlinarith [norm_nonneg (↑x⁻¹ : R)] }
 end
 
 /-- The function
-`λ t, inverse (x + t) - (∑ i in range n, (- x⁻¹ * t) ^ i) * x⁻¹`
+`λ t, inv₀ (x + t) - (∑ i in range n, (- x⁻¹ * t) ^ i) * x⁻¹`
 is `O(t ^ n)` as `t → 0`. -/
-lemma inverse_add_norm_diff_nth_order (x : units R) (n : ℕ) :
-  is_O (λ (t : R), inverse (↑x + t) - (∑ i in range n, (- ↑x⁻¹ * t) ^ i) * ↑x⁻¹)
+lemma inv₀_add_norm_diff_nth_order (x : units R) (n : ℕ) :
+  is_O (λ (t : R), inv₀ (↑x + t) - (∑ i in range n, (- ↑x⁻¹ * t) ^ i) * ↑x⁻¹)
   (λ t, ∥t∥ ^ n) (𝓝 (0:R)) :=
 begin
   by_cases h : n = 0,
-  { simpa [h] using inverse_add_norm x },
+  { simpa [h] using inv₀_add_norm x },
   have hn : 0 < n := nat.pos_of_ne_zero h,
   simp [is_O_iff],
-  cases (is_O_iff.mp (inverse_add_norm x)) with C hC,
+  cases (is_O_iff.mp (inv₀_add_norm x)) with C hC,
   use C * ∥(1:ℝ)∥ * ∥(↑x⁻¹ : R)∥ ^ n,
   have h : eventually_eq (𝓝 (0:R))
-    (λ t, inverse (↑x + t) - (∑ i in range n, (- ↑x⁻¹ * t) ^ i) * ↑x⁻¹)
-    (λ t, ((- ↑x⁻¹ * t) ^ n) * inverse (x + t)),
-  { refine (inverse_add_nth_order x n).mp (eventually_of_forall _),
+    (λ t, inv₀ (↑x + t) - (∑ i in range n, (- ↑x⁻¹ * t) ^ i) * ↑x⁻¹)
+    (λ t, ((- ↑x⁻¹ * t) ^ n) * inv₀ (x + t)),
+  { refine (inv₀_add_nth_order x n).mp (eventually_of_forall _),
     intros t ht,
     convert congr_arg (λ a, a - (range n).sum (pow (-↑x⁻¹ * t)) * ↑x⁻¹) ht,
     simp },
@@ -243,21 +243,21 @@ begin
   have h'' : 0 ≤ ∥(↑x⁻¹ : R)∥ ^ n * ∥t∥ ^ n,
   { refine mul_nonneg _ _;
     exact pow_nonneg (norm_nonneg _) n },
-  nlinarith [norm_nonneg (inverse (↑x + t))],
+  nlinarith [norm_nonneg (inv₀ (↑x + t))],
 end
 
-/-- The function `λ t, inverse (x + t) - x⁻¹` is `O(t)` as `t → 0`. -/
-lemma inverse_add_norm_diff_first_order (x : units R) :
-  is_O (λ t, inverse (↑x + t) - ↑x⁻¹) (λ t, ∥t∥) (𝓝 (0:R)) :=
-by { convert inverse_add_norm_diff_nth_order x 1; simp }
+/-- The function `λ t, inv₀ (x + t) - x⁻¹` is `O(t)` as `t → 0`. -/
+lemma inv₀_add_norm_diff_first_order (x : units R) :
+  is_O (λ t, inv₀ (↑x + t) - ↑x⁻¹) (λ t, ∥t∥) (𝓝 (0:R)) :=
+by { convert inv₀_add_norm_diff_nth_order x 1; simp }
 
 /-- The function
-`λ t, inverse (x + t) - x⁻¹ + x⁻¹ * t * x⁻¹`
+`λ t, inv₀ (x + t) - x⁻¹ + x⁻¹ * t * x⁻¹`
 is `O(t ^ 2)` as `t → 0`. -/
-lemma inverse_add_norm_diff_second_order (x : units R) :
-  is_O (λ t, inverse (↑x + t) - ↑x⁻¹ + ↑x⁻¹ * t * ↑x⁻¹) (λ t, ∥t∥ ^ 2) (𝓝 (0:R)) :=
+lemma inv₀_add_norm_diff_second_order (x : units R) :
+  is_O (λ t, inv₀ (↑x + t) - ↑x⁻¹ + ↑x⁻¹ * t * ↑x⁻¹) (λ t, ∥t∥ ^ 2) (𝓝 (0:R)) :=
 begin
-  convert inverse_add_norm_diff_nth_order x 2,
+  convert inv₀_add_norm_diff_nth_order x 2,
   ext t,
   simp only [range_succ, range_one, sum_insert, mem_singleton, sum_singleton, not_false_iff,
     one_ne_zero, pow_zero, add_mul],
@@ -265,17 +265,17 @@ begin
   simp
 end
 
-/-- The function `inverse` is continuous at each unit of `R`. -/
-lemma inverse_continuous_at (x : units R) : continuous_at inverse (x : R) :=
+/-- The function `inv₀` is continuous at each unit of `R`. -/
+lemma inv₀_continuous_at (x : units R) : continuous_at inv₀ (x : R) :=
 begin
-  have h_is_o : is_o (λ (t : R), ∥inverse (↑x + t) - ↑x⁻¹∥) (λ (t : R), (1:ℝ)) (𝓝 0),
-  { refine is_o_norm_left.mpr ((inverse_add_norm_diff_first_order x).trans_is_o _),
+  have h_is_o : is_o (λ (t : R), ∥inv₀ (↑x + t) - ↑x⁻¹∥) (λ (t : R), (1:ℝ)) (𝓝 0),
+  { refine is_o_norm_left.mpr ((inv₀_add_norm_diff_first_order x).trans_is_o _),
     exact is_o_norm_left.mpr (is_o_id_const one_ne_zero) },
   have h_lim : tendsto (λ (y:R), y - x) (𝓝 x) (𝓝 0),
   { refine tendsto_zero_iff_norm_tendsto_zero.mpr _,
     exact tendsto_iff_norm_tendsto_zero.mp tendsto_id },
   simp only [continuous_at],
-  rw [tendsto_iff_norm_tendsto_zero, units.inverse_eq],
+  rw [tendsto_iff_norm_tendsto_zero, units.inv₀_eq],
   convert h_is_o.tendsto_0.comp h_lim,
   ext, simp
 end

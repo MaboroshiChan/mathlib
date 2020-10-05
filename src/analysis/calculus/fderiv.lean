@@ -2149,8 +2149,8 @@ open normed_ring continuous_linear_map ring
 
 /-- At an invertible element `x` of a normed algebra `R`, the Fréchet derivative of the inversion
 operation is the linear map `λ t, - x⁻¹ * t * x⁻¹`. -/
-lemma has_fderiv_at_ring_inverse (x : units R) :
-  has_fderiv_at ring.inverse (- (lmul_right 𝕜 R ↑x⁻¹).comp (lmul_left 𝕜 R ↑x⁻¹)) x :=
+lemma has_fderiv_at_inv₀ (x : units R) :
+  has_fderiv_at inv₀ (- (lmul_right 𝕜 R ↑x⁻¹).comp (lmul_left 𝕜 R ↑x⁻¹)) x :=
 begin
   have h_is_o : is_o (λ (t : R), inverse (↑x + t) - ↑x⁻¹ + ↑x⁻¹ * t * ↑x⁻¹)
     (λ (t : R), t) (𝓝 0),
@@ -2166,15 +2166,15 @@ begin
   convert h_is_o.comp_tendsto h_lim,
   ext y,
   simp only [coe_comp', function.comp_app, lmul_right_apply, lmul_left_apply, neg_apply,
-    x.inverse_eq, units.inv_mul, add_sub_cancel'_right, mul_sub, sub_mul, one_mul, sub_neg_eq_add]
+    x.inv₀_eq, units.inv_mul, add_sub_cancel'_right, mul_sub, sub_mul, one_mul, sub_neg_eq_add]
 end
 
-lemma differentiable_at_inverse (x : units R) : differentiable_at 𝕜 (@ring.inverse R _) x :=
-(has_fderiv_at_ring_inverse x).differentiable_at
+lemma differentiable_at_inverse (x : units R) : differentiable_at 𝕜 (@inv₀ R _) x :=
+(has_fderiv_at_inv₀ x).differentiable_at
 
 lemma fderiv_inverse (x : units R) :
-  fderiv 𝕜 (@ring.inverse R _) x = - (lmul_right 𝕜 R ↑x⁻¹).comp (lmul_left 𝕜 R ↑x⁻¹) :=
-(has_fderiv_at_ring_inverse x).fderiv
+  fderiv 𝕜 (@inv₀ R _) x = - (lmul_right 𝕜 R ↑x⁻¹).comp (lmul_left 𝕜 R ↑x⁻¹) :=
+(has_fderiv_at_inv₀ x).fderiv
 
 end algebra_inverse
 
