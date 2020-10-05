@@ -68,6 +68,10 @@ lemma dense.quotient [setoid α] [topological_space α] {s : set α} (H : dense 
   dense (quotient.mk '' s) :=
 (surjective_quotient_mk α).dense_range.dense_image continuous_coinduced_rng H
 
+lemma dense_range.quotient [setoid α] [topological_space α] {f : β → α} (hf : dense_range f) :
+  dense_range (quotient.mk ∘ f) :=
+(surjective_quotient_mk α).dense_range.comp hf continuous_coinduced_rng
+
 instance {p : α → Prop} [topological_space α] [discrete_topology α] :
   discrete_topology (subtype p) :=
 ⟨bot_unique $ assume s hs,

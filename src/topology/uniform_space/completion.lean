@@ -361,10 +361,7 @@ lemma uniform_inducing_coe : uniform_inducing  (coe : α → completion α) :=
 variables {α}
 
 lemma dense : dense_range (coe : α → completion α) :=
-begin
-  rw [dense_range_iff_closure_range, completion.coe_eq, range_comp],
-  exact quotient_dense_of_dense dense_range_pure_cauchy
-end
+dense_range_pure_cauchy.quotient
 
 variables (α)
 
@@ -384,7 +381,7 @@ local attribute [instance]
 abstract_completion.uniform_struct abstract_completion.complete abstract_completion.separation
 
 lemma nonempty_completion_iff : nonempty (completion α) ↔ nonempty α :=
-(dense_range.nonempty (cpkg.dense)).symm
+cpkg.dense.nonempty_iff.symm
 
 lemma uniform_continuous_coe : uniform_continuous (coe : α → completion α) :=
 cpkg.uniform_continuous_coe
@@ -405,7 +402,7 @@ lemma dense_inducing_coe : dense_inducing (coe : α → completion α) :=
 open topological_space
 
 instance separable_space_completion [separable_space α] : separable_space (completion α) :=
-completion.dense_inducing_coe.separable
+completion.dense_inducing_coe.separable_space
 
 lemma dense_embedding_coe [separated_space α]: dense_embedding (coe : α → completion α) :=
 { inj := separated_pure_cauchy_injective,

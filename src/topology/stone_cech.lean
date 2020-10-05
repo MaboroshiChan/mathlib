@@ -222,8 +222,7 @@ def stone_cech_unit (x : α) : stone_cech α := ⟦pure x⟧
   not be an embedding, for example if α is not Hausdorff.) -/
 lemma dense_range_stone_cech_unit : dense_range (@stone_cech_unit α _) :=
 -- With term mode proof Lean tries to use wrong instances
-by convert (surjective_quotient_mk _).dense_range.comp dense_inducing_pure.dense
-  continuous_quotient_mk
+by convert dense_inducing_pure.dense.quotient
 
 section extension
 
