@@ -1277,7 +1277,7 @@ variable (𝕜)
 order `n`, which are continuous. Contrary to the case of definitions in domains (where derivatives
 might not be unique) we do not need to localize the definition in space or time.
 -/
-definition times_cont_diff (n : with_top ℕ) (f : E → F)  :=
+definition times_cont_diff (n : with_top ℕ) (f : E → F) :=
 ∃ p : E → formal_multilinear_series 𝕜 E F, has_ftaylor_series_up_to n f p
 
 variable {𝕜}
@@ -1692,12 +1692,8 @@ series in `g ⁻¹' s`, whose `k`-th term is given by `p k (g v₁, ..., g vₖ)
 lemma has_ftaylor_series_up_to_on.comp_continuous_linear_map {n : with_top ℕ}
   (hf : has_ftaylor_series_up_to_on n f p s) (g : G →L[𝕜] E) :
   has_ftaylor_series_up_to_on n (f ∘ g)
-    (λ x k, (p (g x) k).comp_continuous_linear_map (λ _, g)) (g ⁻¹' s) :=
+    (λ x k, (p (g x) k).comp_continuous_linear_map 𝕜 E g) (g ⁻¹' s) :=
 begin
-  let A : Π m : ℕ, (E [×m]→L[𝕜] F) → (G [×m]→L[𝕜] F) :=
-    λ m h, h.comp_continuous_linear_map (λ _, g),
-  have hA : ∀ m, is_bounded_linear_map 𝕜 (A m) :=
-    λ m, is_bounded_linear_map_continuous_multilinear_map_comp_linear g,
   split,
   { assume x hx,
     simp only [(hf.zero_eq (g x) hx).symm, function.comp_app],
@@ -1705,13 +1701,19 @@ begin
     rw continuous_linear_map.map_zero,
     refl },
   { assume m hm x hx,
-    convert ((hA m).has_fderiv_at).comp_has_fderiv_within_at x
+    let A : (E [×m]→L[𝕜] F) → (G [×m]→L[𝕜] F) := λ h, h.comp_continuous_linear_map 𝕜 E g,
+    have hA : is_bounded_linear_map 𝕜 A :=
+      is_bounded_linear_map_continuous_multilinear_map_comp_linear g,
+    convert (hA.has_fderiv_at).comp_has_fderiv_within_at x
       ((hf.fderiv_within m hm (g x) hx).comp x (g.has_fderiv_within_at) (subset.refl _)),
     ext y v,
     change p (g x) (nat.succ m) (g ∘ (cons y v)) = p (g x) m.succ (cons (g y) (g ∘ v)),
     rw comp_cons },
   { assume m hm,
-    exact (hA m).continuous.comp_continuous_on
+    let A : (E [×m]→L[𝕜] F) → (G [×m]→L[𝕜] F) := λ h, h.comp_continuous_linear_map 𝕜 E g,
+    have hA : is_bounded_linear_map 𝕜 A :=
+      is_bounded_linear_map_continuous_multilinear_map_comp_linear g,
+    exact hA.continuous.comp_continuous_on
       ((hf.cont m hm).comp g.continuous.continuous_on (subset.refl _)) }
 end
 
@@ -2012,6 +2014,12 @@ lemma times_cont_diff_within_at.comp' {n : with_top ℕ} {s : set E} {t : set F}
   times_cont_diff_within_at 𝕜 n (g ∘ f) (s ∩ f⁻¹' t) x :=
 hg.comp x (hf.mono (inter_subset_left _ _)) (inter_subset_right _ _)
 
+lemma times_cont_diff_at.comp_times_cont_diff_within_at
+  {n : with_top ℕ} {g : F → G} {f : E → F} (x : E) (h : times_cont_diff_at 𝕜 n g (f x))
+  (hf : times_cont_diff_within_at 𝕜 n f t x) :
+  times_cont_diff_within_at 𝕜 n (g ∘ f) t x :=
+h.comp _ hf (maps_to_univ _ _)
+
 /-- The composition of `C^n` functions at points is `C^n`. -/
 lemma times_cont_diff_at.comp
   {n : with_top ℕ} {g : F → G} {f : E → F} (x : E)
@@ -2024,11 +2032,7 @@ lemma times_cont_diff.comp_times_cont_diff_within_at
   {n : with_top ℕ} {g : F → G} {f : E → F} (h : times_cont_diff 𝕜 n g)
   (hf : times_cont_diff_within_at 𝕜 n f t x) :
   times_cont_diff_within_at 𝕜 n (g ∘ f) t x :=
-begin
-  have : times_cont_diff_within_at 𝕜 n g univ (f x) :=
-    h.times_cont_diff_at.times_cont_diff_within_at,
-  exact this.comp x hf (subset_univ _),
-end
+h.times_cont_diff_at.comp_times_cont_diff_within_at x hf
 
 lemma times_cont_diff.comp_times_cont_diff_at
   {n : with_top ℕ} {g : F → G} {f : E → F} (x : E)
@@ -2351,11 +2355,30 @@ begin
   { exact times_cont_diff_at_top.mpr Itop }
 end
 
-variables (𝕜) (𝕜' : Type*) [normed_field 𝕜'] [normed_algebra 𝕜 𝕜'] [complete_space 𝕜']
+variables (𝕜) {𝕜' : Type*} [normed_field 𝕜'] [normed_algebra 𝕜 𝕜'] [complete_space 𝕜']
 
 lemma times_cont_diff_at_inv {x : 𝕜'} (hx : x ≠ 0) {n} :
   times_cont_diff_at 𝕜 n has_inv.inv x :=
 by simpa only [inverse_eq_has_inv] using times_cont_diff_at_ring_inverse 𝕜 (units.mk0 x hx)
+
+variable {𝕜}
+
+lemma times_cont_diff_within_at.inv {f : E → 𝕜'} {n} (hf : times_cont_diff_within_at 𝕜 n f s x)
+  (hx : f x ≠ 0) : times_cont_diff_within_at 𝕜 n (λ x, (f x)⁻¹) s x :=
+(times_cont_diff_at_inv 𝕜 hx).comp_times_cont_diff_within_at x hf
+
+-- TODO: generalize `mul` and `div` to functions taking values in an algebra over `𝕜`
+lemma times_cont_diff_within_at.div [complete_space 𝕜] {f g : E → 𝕜} {n}
+  (hf : times_cont_diff_within_at 𝕜 n f s x) (hg : times_cont_diff_within_at 𝕜 n g s x)
+  (hx : g x ≠ 0) :
+  times_cont_diff_within_at 𝕜 n (λ x, f x / g x) s x :=
+hf.mul (hg.inv hx)
+
+lemma times_cont_diff_at.div [complete_space 𝕜] {f g : E → 𝕜} {n}
+  (hf : times_cont_diff_at 𝕜 n f x) (hg : times_cont_diff_at 𝕜 n g x)
+  (hx : g x ≠ 0) :
+  times_cont_diff_at 𝕜 n (λ x, f x / g x) x :=
+hf.mul (hg.inv hx)
 
 end algebra_inverse
 
@@ -2390,8 +2413,7 @@ begin
     ext,
     simp },
   { convert times_cont_diff_at_ring_inverse 𝕜 1; try { apply_instance },
-    simp [O₂, one_def],
-    refl },
+    simp [O₂, one_def] },
 end
 
 end map_inverse
