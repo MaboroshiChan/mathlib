@@ -64,18 +64,9 @@ instance Pi.topological_space {β : α → Type v} [t₂ : Πa, topological_spac
 instance ulift.topological_space [t : topological_space α] : topological_space (ulift.{v u} α) :=
 t.induced ulift.down
 
-lemma quotient_dense_of_dense [setoid α] [topological_space α] {s : set α} (H : ∀ x, x ∈ closure s) :
-  closure (quotient.mk '' s) = univ :=
-eq_univ_of_forall $ λ x, begin
-  rw mem_closure_iff,
-  intros U U_op x_in_U,
-  let V := quotient.mk ⁻¹' U,
-  cases quotient.exists_rep x with y y_x,
-  have y_in_V : y ∈ V, by simp only [mem_preimage, y_x, x_in_U],
-  have V_op : is_open V := U_op,
-  obtain ⟨w, w_in_V, w_in_range⟩ : (V ∩ s).nonempty := mem_closure_iff.1 (H y) V V_op y_in_V,
-  exact ⟨_, w_in_V, mem_image_of_mem quotient.mk w_in_range⟩
-end
+lemma quotient_dense_of_dense [setoid α] [topological_space α] {s : set α} (H : dense s) :
+  dense (quotient.mk '' s) :=
+(surjective_quotient_mk α).dense_range.dense_image continuous_coinduced_rng H
 
 instance {p : α → Prop} [topological_space α] [discrete_topology α] :
   discrete_topology (subtype p) :=

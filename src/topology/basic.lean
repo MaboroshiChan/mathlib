@@ -1090,6 +1090,9 @@ def dense_range := dense (range f)
 
 variables {f}
 
+lemma function.surjective.dense_range (hf : function.surjective f) : dense_range f :=
+λ x, by simp [hf.range_eq]
+
 lemma dense_range_iff_closure_range : dense_range f ↔ closure (range f) = univ :=
 dense_iff_closure_eq
 
